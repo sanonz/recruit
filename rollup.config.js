@@ -2,7 +2,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import typescript from 'rollup-plugin-typescript2';
 
 const config = {
-  input: 'src/index.ts',
+  input: 'src/reducer.ts',
   output: [{
     file: 'dist/reducer.cjs.js',
     format: 'cjs',
