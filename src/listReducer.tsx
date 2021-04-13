@@ -3,6 +3,7 @@ import { pull, pullAll } from 'lodash-es';
 import ReducerError from './ReducerError';
 
 export enum ListActionType {
+  Fill = 'fill',
   Add = 'add',
   AddAll = 'addAll',
   Insert = 'insert',
@@ -11,6 +12,19 @@ export enum ListActionType {
   RemoveAll = 'removeAll',
   Replace = 'replace',
   Pop = 'pop',
+}
+
+export interface FillAction<T> {
+  type: ListActionType.Fill;
+  payload: T[];
+}
+
+export interface ReplaceAction<T> {
+  type: ListActionType.Replace;
+  payload: {
+    oldElement: T;
+    newElement: T;
+  };
 }
 
 export interface AddAction<T> {
@@ -49,26 +63,35 @@ export interface RemoveAllAction<T> {
   payload: T[];
 }
 
-export interface ReplaceAction<T> {
-  type: ListActionType.Replace;
-  payload: {
-    oldElement: T;
-    newElement: T;
-  };
-}
-
 export interface PopAction {
   type: ListActionType.Pop;
   payload?: number;
 }
 
-export type ListActions<T> =  AddAction<T>     | AddAllAction<T>    |
+export type ListActions<T> =  FillAction<T>    | ReplaceAction<T>   |
+                              AddAction<T>     | AddAllAction<T>    |
                               RemoveAction<T>  | RemoveAllAction<T> |
                               InsertAction<T>  | InsertAllAction<T> |
-                              ReplaceAction<T> | PopAction          ;
+                              PopAction;
 
 export function listReducer<T>(state: T[], action: ListActions<T>): T[] {
   switch(action.type) {
+    case ListActionType.Fill:
+      return action.payload;
+
+    case ListActionType.Replace: {
+      const payload = action.payload;
+      let idx = state.indexOf(payload.oldElement);
+      if (~idx) {
+        const newState = [...state];
+        newState.splice(idx, 1, payload.newElement);
+
+        return newState;
+      }
+
+      return state;
+    }
+
     case ListActionType.Add:
       return [...state, action.payload];
 
@@ -96,19 +119,6 @@ export function listReducer<T>(state: T[], action: ListActions<T>): T[] {
 
     case ListActionType.RemoveAll:
       return pullAll([...state], action.payload);
-
-    case ListActionType.Replace: {
-      const payload = action.payload;
-      let idx = state.indexOf(payload.oldElement);
-      if (~idx) {
-        const newState = [...state];
-        newState.splice(idx, 1, payload.newElement);
-
-        return newState;
-      }
-
-      return state;
-    }
 
     case ListActionType.Pop: {
       const newState = [...state];

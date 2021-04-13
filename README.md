@@ -59,11 +59,14 @@ state = mapReducer(state, {type: 'removeAll', payload: [3, 4]});
 state = mapReducer(state, {type: 'replace', payload: {oldElement: 6, newElement: 3}});
 // [1, 2, 3]
 
-state = mapReducer(state, {type: 'pop', payload: 1);
-// [1, 3]
+state = mapReducer(state, {type: 'pop');
+// [1, 2]
 
 state = mapReducer(state, {type: 'pop', payload: 0);
-// [3]
+// [2]
+
+state = mapReducer(state, {type: 'fill', payload: [3, 4, 5]});
+// [3, 4, 5]
 ```
 
 This is an interactive version of the code that you can play with online.
